@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق المدرب الاحترافي</title>
+    <link rel="stylesheet" href="trainer-app.css">
+</head>
+
+<body>
+    <!-- Cinema Mode Button -->
+    <button class="cinema-mode-btn" onclick="toggleCinemaMode()" title="ملء الشاشة">🎬</button>
+    <button id="presentationBackBtn" class="presentation-back-btn" onclick="setAppMode('trainer')" title="العودة لوضع المدرب">🎤</button>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>🎓 تطبيق المدرب</h1>
+                <p>إدارة الأسئلة التفاعلية</p>
+            </div>
+            <div class="mode-switcher">
+                <button id="trainerModeBtn" class="btn mode-btn active" onclick="setAppMode('trainer')">🎤 Trainer Mode (إدارة)</button>
+                <button id="presentationModeBtn" class="btn mode-btn" onclick="setAppMode('presentation')">📺 Presentation Mode (عرض)</button>
+            </div>
+            <button class="btn btn-secondary" style="margin-bottom: 5px; border: 2px dashed rgba(255,255,255,0.4);" onclick="showCourseSelection()">🏠 العودة للدورات</button>
+            <button class="btn btn-large" onclick="openCourseModal(false)">📝 بيانات الدورة</button>
+            <button class="btn btn-export" onclick="openAxisModal()">➕ إضافة محور جديد</button>
+            <button class="btn btn-danger" onclick="openTraineesModal()">👥 إدارة المتدربين</button>
+            <button class="btn btn-primary" onclick="showGlobalLeaderboard()">🏆 الترتيب العام</button>
+            <button class="btn btn-primary" onclick="showFinalReport()">📋 تقرير الختام</button>
+            <button class="btn btn-secondary" onclick="openSettingsModal()">⚙️ الإعدادات</button>
+            <div class="axes-list" id="axesList"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="welcome-screen">
+                <h2>مرحباً بك في تطبيق المدرب الاحترافي</h2>
+                <p>اختر محوراً من القائمة الجانبية للبدء</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Axis -->
+    <div class="modal" id="axisModal">
+        <div class="modal-content">
+            <h2 class="modal-header">إضافة محور تدريبي</h2>
+            <div class="form-group">
+                <label>عنوان المحور</label>
+                <input type="text" id="axisTitle" placeholder="مثال: مقدمة في البرمجة">
+            </div>
+            <button class="btn btn-primary" onclick="saveAxis()">حفظ المحور</button>
+            <button class="btn btn-secondary" onclick="closeModal('axisModal')">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- Modal: Add Question -->
+    <div class="modal" id="questionModal">
+        <div class="modal-content">
+            <h2 class="modal-header" id="questionModalTitle">إضافة سؤال جديد</h2>
+            <div class="form-group">
+                <label>نوع السؤال</label>
+                <select id="questionType" onchange="updateQuestionForm()">
+                    <option value="truefalse">صح وخطأ</option>
+                    <option value="multiple">اختيار من متعدد</option>
+                    <option value="matching">صل بين العمودين</option>
+                    <option value="essay">سؤال مقالي</option>
+                    <option value="scenario">سيناريو</option>
+                    <option value="casestudy">دراسة حالة</option>
+                    <option value="roleplay">لعب أدوار</option>
+                    <option value="finderrors">اكتشاف أخطاء</option>
+                    <option value="traineecards">بطاقات المتدربين</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>نص السؤال</label>
+                <textarea id="questionText" placeholder="اكتب السؤال هنا..."></textarea>
+            </div>
+            <div id="questionFormContainer"></div>
+            <button class="btn btn-primary" onclick="saveQuestion()">حفظ السؤال</button>
+            <button class="btn btn-secondary" onclick="closeModal('questionModal')">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- Modal: Trainees -->
+    <div class="modal" id="traineesModal">
+        <div class="modal-content">
+            <h2 class="modal-header">إدارة المتدربين</h2>
+            <div class="form-group">
+                <label>أضف متدرباً جديداً</label>
+                <div class="trainee-input-group">
+                    <input type="text" id="traineeNameInput" placeholder="اسم المتدرب">
+                    <button class="btn btn-primary" style="width: auto;" onclick="addTrainee()">إضافة</button>
+                </div>
+            </div>
+            <div class="trainee-list" id="traineesList"></div>
+            <button class="btn btn-secondary" onclick="closeModal('traineesModal')">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- Modal: Course Details -->
+    <div class="modal" id="courseModal">
+        <div class="modal-content">
+            <h2 class="modal-header">بيانات الدورة التدريبية</h2>
+            <div class="form-group">
+                <label>اسم الدورة التدريبية *</label>
+                <input type="text" id="courseName" placeholder="مثال: هندسة البرمجيات الاحترافية">
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex: 1;">
+                    <label>تاريخ البداية *</label>
+                    <input type="date" id="courseStartDate">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label>تاريخ النهاية</label>
+                    <input type="date" id="courseEndDate">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>اسم المدرب</label>
+                <input type="text" id="courseTrainer" placeholder="اسم المدرب رباعياً">
+            </div>
+            <div class="form-group">
+                <label>الجهة المنظِّمة</label>
+                <input type="text" id="courseOrganizer" placeholder="مثال: أكاديمية تكنولوجيا المعلومات">
+            </div>
+            <div class="form-group">
+                <label>وصف الدورة</label>
+                <textarea id="courseDescription" placeholder="اكتب وصفاً مختصراً للدورة..."
+                    style="min-height: 100px;"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveCourseData()">حفظ البيانات</button>
+            <button class="btn btn-secondary" onclick="closeModal('courseModal')">إلغاء</button>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2 class="modal-header">إعدادات النظام وإدارة البيانات</h2>
+            <div class="settings-grid"
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <button class="btn btn-export btn-large" style="margin: 0;" onclick="exportData()">📤 تصدير نسخة
+                    احتياطية</button>
+                <button class="btn btn-import btn-large" style="margin: 0;"
+                    onclick="document.getElementById('importFile').click()">📥 استيراد بيانات</button>
+                <button class="btn btn-danger btn-large" style="grid-column: span 2; margin-top: 10px;"
+                    onclick="clearAllData()">🗑️ مسح جميع البيانات نهائياً</button>
+            </div>
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(this)">
+            <button class="btn btn-secondary" style="margin-top: 25px; width: 100%;"
+                onclick="closeModal('settingsModal')">إغلاق</button>
+        </div>
+    </div>
+
+    <script src="trainer-app.js"></script>
+</body>
+
+</html>
